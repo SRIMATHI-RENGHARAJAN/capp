@@ -1,0 +1,169 @@
+
+EXCHANGERATE-API
+
+import React, { useState } from 'react';
+
+const App = () => {
+  const [users, setUsers] = useState([]);
+  const [user, setUser] = useState({ id: '', name: '', email: '' });
+  const [editing, setEditing] = useState(false);
+
+  // Currency Converter State
+  const [amount, setAmount] = useState('');
+  const [fromCurrency, setFromCurrency] = useState('USD');
+  const [toCurrency, setToCurrency] = useState('EUR');
+  const [exchangeRate, setExchangeRate] = useState(null);
+  const [error, setError] = useState('');
+
+  // Handle User Inputs
+  const handleChange = (e) => {
+    setUser({ ...user, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (editing) {
+      setUsers(users.map((u) => (u.id === user.id ? user : u)));
+      setEditing(false);
+    } else {
+      setUsers([...users, { ...user, id: Date.now().toString() }]);
+    }
+    setUser({ id: '', name: '', email: '' });
+  };
+
+  const handleEdit = (userToEdit) => {
+    setUser(userToEdit);
+    setEditing(true);
+  };
+
+  const handleDelete = (id) => {
+    setUsers(users.filter((u) => u.id !== id));
+  };
+
+  // Currency Converter Functions
+  const fetchExchangeRate = async (e) => {
+    e.preventDefault();
+
+    if (!amount || !fromCurrency || !toCurrency) return;  // Check if all inputs are provided
+
+    const url = `https://api.exchangerate-api.com/v4/latest/${fromCurrency}`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data && data.rates) {
+        const rate = data.rates[toCurrency];
+        if (rate) {
+          setExchangeRate(rate);  // Set the fetched exchange rate
+          setError('');  // Clear error if the rate is found
+        } else {
+          setError('Currency not supported');
+          setExchangeRate(null);
+        }
+      } else {
+        setError('Error fetching exchange rate data');
+        setExchangeRate(null);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setError('Error fetching exchange rate data');
+      setExchangeRate(null);
+    }
+  };
+
+  const handleAmountChange = (e) => {
+    setAmount(e.target.value);
+  };
+
+  const handleFromCurrencyChange = (e) => {
+    setFromCurrency(e.target.value);
+  };
+
+  const handleToCurrencyChange = (e) => {
+    setToCurrency(e.target.value);
+  };
+
+  return (
+    <div>
+      <h2>User Management</h2>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="name"
+          placeholder="Name"
+          value={user.name}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={user.email}
+          onChange={handleChange}
+          required
+        />
+        <button type="submit">{editing ? 'Update' : 'Add'} User</button>
+      </form>
+
+      <h3>User List</h3>
+      <ul>
+        {users.map((u) => (
+          <li key={u.id}>
+            {u.name} - {u.email}
+            <button onClick={() => handleEdit(u)}>Edit</button>
+            <button onClick={() => handleDelete(u.id)}>Delete</button>
+          </li>
+        ))}
+      </ul>
+
+      <hr />
+
+      {/* Currency Converter Section */}
+      <h3>Currency Converter</h3>
+      <form onSubmit={fetchExchangeRate}>
+        <div>
+          <input
+            type="number"
+            value={amount}
+            onChange={handleAmountChange}
+            placeholder="Amount"
+          />
+        </div>
+
+        <div>
+          <select value={fromCurrency} onChange={handleFromCurrencyChange}>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+            <option value="GBP">GBP</option>
+            <option value="INR">INR</option>
+          </select>
+          <span>to</span>
+          <select value={toCurrency} onChange={handleToCurrencyChange}>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+            <option value="GBP">GBP</option>
+            <option value="INR">INR</option>
+          </select>
+        </div>
+
+        <button type="submit">Convert</button>
+      </form>
+
+      {error && <div className="error">{error}</div>}
+
+      {exchangeRate && (
+        <div className="result">
+          <h4>Conversion Result:</h4>
+          <p>
+            {amount} {fromCurrency} = {(amount * exchangeRate).toFixed(2)} {toCurrency}
+          </p>
+          <p>Exchange Rate: 1 {fromCurrency} = {exchangeRate} {toCurrency}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default App;
