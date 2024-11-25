@@ -1,0 +1,1373 @@
+POSTMAN TOOL:
+
+post.js
+
+const express = require('express');
+const app = express();
+const port = 3001;
+
+app.use(express.json());
+
+let users = [];
+
+app.get('/', (req, res) => {
+  res.send('Welcome to the Simple API!');
+});
+
+app.get('/users', (req, res) => {
+  res.json(users);
+});
+
+app.post('/users', (req, res) => {
+  const { name, email, number } = req.body;
+
+  if (!name || !email || !number) {
+    return res.status(400).json({ message: 'Name, email, and number are required' });
+  }
+
+  const newUser = { id: users.length + 1, name, email, number };
+  users.push(newUser);
+  res.status(201).json(newUser);
+});
+
+app.delete('/users/:id', (req, res) => {
+  const { id } = req.params;
+  const userIndex = users.findIndex(user => user.id === parseInt(id));
+
+  if (userIndex === -1) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  users.splice(userIndex, 1);
+  res.json({ message: 'User deleted' });
+});
+
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
+});
+
+
+node post.js
+
+
+
+
+FIREBASE:
+
+App.js
+
+import React, { useState } from 'react';
+
+const App = () => {
+  const [users, setUsers] = useState([]);
+  const [user, setUser] = useState({ id: '', name: '', email: '' });
+  const [editing, setEditing] = useState(false);
+
+  const handleChange = (e) => {
+    setUser({ ...user, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (editing) {
+      setUsers(users.map((u) => (u.id === user.id ? user : u)));
+      setEditing(false);
+    } else {
+      setUsers([...users, { ...user, id: Date.now().toString() }]);
+    }
+    setUser({ id: '', name: '', email: '' });
+  };
+
+  const handleEdit = (userToEdit) => {
+    setUser(userToEdit);
+    setEditing(true);
+  };
+
+  const handleDelete = (id) => {
+    setUsers(users.filter((u) => u.id !== id));
+  };
+
+  return (
+    <div>
+      <h2>User Management</h2>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="name"
+          placeholder="Name"
+          value={user.name}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={user.email}
+          onChange={handleChange}
+          required
+        />
+        <button type="submit">{editing ? 'Update' : 'Add'} User</button>
+      </form>
+
+      <h3>User List</h3>
+      <ul>
+        {users.map((u) => (
+          <li key={u.id}>
+            {u.name} - {u.email}
+            <button onClick={() => handleEdit(u)}>Edit</button>
+            <button onClick={() => handleDelete(u.id)}>Delete</button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default App;
+
+node -v
+npm -v
+npm install -g npm
+npx create-react-app appname
+cd appname 
+(keep the code in appname/src/App.js)
+npm install -g firebase-tools
+firebase login
+firebase init
+(hosting space->enter,use existing,build,y,n)
+npm run build
+firebase deploy
+click url
+
+
+AUTH 0:
+
+INDEX edit
+LOGIN create
+LOGOUT create
+PROFIKE create
+
+TAKE CODE FROM WEBSITE
+
+USER.JS create
+
+// src/UserManagement.js
+
+import React, { useState } from 'react';
+
+const UserManagement = () => {
+  const [users, setUsers] = useState([]);
+  const [user, setUser] = useState({ id: '', name: '', email: '' });
+  const [editing, setEditing] = useState(false);
+
+  const handleChange = (e) => {
+    setUser({ ...user, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (editing) {
+      setUsers(users.map((u) => (u.id === user.id ? user : u)));
+      setEditing(false);
+    } else {
+      setUsers([...users, { ...user, id: Date.now().toString() }]);
+    }
+    setUser({ id: '', name: '', email: '' });
+  };
+
+  const handleEdit = (userToEdit) => {
+    setUser(userToEdit);
+    setEditing(true);
+  };
+
+  const handleDelete = (id) => {
+    setUsers(users.filter((u) => u.id !== id));
+  };
+
+  return (
+    <div>
+      <h2>User Management</h2>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="name"
+          placeholder="Name"
+          value={user.name}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={user.email}
+          onChange={handleChange}
+          required
+        />
+        <button type="submit">{editing ? 'Update' : 'Add'} User</button>
+      </form>
+
+      <h3>User List</h3>
+      <ul>
+        {users.map((u) => (
+          <li key={u.id}>
+            {u.name} - {u.email}
+            <button onClick={() => handleEdit(u)}>Edit</button>
+            <button onClick={() => handleDelete(u.id)}>Delete</button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default UserManagement;
+
+APP.JS edit
+
+import React from 'react';
+import Login from './login';
+import User from './User';
+import Logout from './logout';
+import Profile from './profile';
+
+
+const App = () => {
+  return (
+    <div className="App">
+      <h1>Simple CRUD Application</h1>
+      <Login/>
+      <Profile/>
+      <User/>
+      <Logout/>
+
+    </div>
+  );
+};
+
+export default App;
+
+
+
+login
+create single page App,continue
+settings: callback url,logout url,web origin--> http://localhost:3000 (OR) https://localhost.com:3000
+cmd prompt: go to dir(where react app is created)
+npm install @auth0/auth0-React
+keep all the files inside
+change client id,domain in index file
+npm start
+
+
+
+MONGODB:
+
+server.js
+
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+
+const app = express();
+app.use(express.json());
+app.use(cors());
+
+// Replace <db_password> with your actual password
+const dbURI = 'mongodb+srv://srimathi:srimathi@cluster0.3hh2z.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+
+mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((err) => console.log('Error connecting to MongoDB:', err));
+
+// User Schema
+const userSchema = new mongoose.Schema({
+  name: String,
+  email: String
+});
+
+const User = mongoose.model('User', userSchema);
+
+// CRUD routes
+app.post('/users', async (req, res) => {
+  const user = new User(req.body);
+  try {
+    await user.save();
+    res.status(201).send(user);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
+app.get('/users', async (req, res) => {
+  try {
+    const users = await User.find();
+    res.send(users);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+app.put('/users/:id', async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.send(user);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
+app.delete('/users/:id', async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    res.send(user);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+
+mkdir
+cd
+(should have created react app in this dir)
+keep app code in app.js(as in firebase) or keep user.js and call it in app.js(as in dropbox)
+npm init -y
+npm install express mongoose cors
+keep server.js in directory(where package.json is found)
+node server.js
+another cmd-> npm start
+
+
+DROPBOX STORAGE:
+
+User.js
+
+import React, { useState, useEffect } from 'react';
+
+const User = () => {
+  const [users, setUsers] = useState([]);
+  const [user, setUser] = useState({ id: '', name: '', email: '' });
+  const [editing, setEditing] = useState(false);
+
+  useEffect(() => {
+    const loadDropboxSDK = () => {
+      const script = document.createElement('script');
+      script.src = "https://www.dropbox.com/static/api/2/dropins.js";
+      script.id = "dropboxjs";
+      script.setAttribute('data-app-key', 'evbnl0rzpbp37cn'); // Replace with your Dropbox app key
+      script.onload = () => console.log('Dropbox SDK loaded successfully');
+      document.body.appendChild(script);
+    };
+
+    loadDropboxSDK();
+  }, []);
+
+  const handleChange = (e) => {
+    setUser({ ...user, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (editing) {
+      setUsers(users.map((u) => (u.id === user.id ? user : u)));
+      setEditing(false);
+    } else {
+      setUsers([...users, { ...user, id: Date.now().toString() }]);
+    }
+    setUser({ id: '', name: '', email: '' });
+  };
+
+  const handleEdit = (userToEdit) => {
+    setUser(userToEdit);
+    setEditing(true);
+  };
+
+  const handleDelete = (id) => {
+    setUsers(users.filter((u) => u.id !== id));
+  };
+
+  const openDropboxChooser = () => {
+    if (!window.Dropbox) {
+      console.error("Dropbox SDK is not loaded.");
+      return;
+    }
+
+    window.Dropbox.choose({
+      success: function (files) {
+        console.log("Files chosen: ", files);
+        // Here you can add logic to do something with the chosen files
+      },
+      linkType: "preview", // or "direct"
+      multiselect: true, // allow multiple file selection
+      extensions: ['.pdf', '.doc', '.docx'], // restrict file types
+    });
+  };
+
+  return (
+    <div>
+      <h2>User Management</h2>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="name"
+          placeholder="Name"
+          value={user.name}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={user.email}
+          onChange={handleChange}
+          required
+        />
+        <button type="submit">{editing ? 'Update' : 'Add'} User</button>
+      </form>
+
+      <button onClick={openDropboxChooser}>Upload File to Dropbox</button>
+
+      <h3>User List</h3>
+      <ul>
+        {users.map((u) => (
+          <li key={u.id}>
+            {u.name} - {u.email}
+            <button onClick={() => handleEdit(u)}>Edit</button>
+            <button onClick={() => handleDelete(u.id)}>Delete</button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default User;
+
+
+App.js
+import React from 'react';
+import User from './User';
+
+
+
+const App = () => {
+  return (
+    <div className="App">
+      <h1>Simple CRUD Application</h1>
+      <User/>
+
+    </div>
+  );
+};
+
+export default App;
+
+Dropbox angular:
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Dropbox File Management</title>
+    <script src="https://unpkg.com/dropbox/dist/Dropbox-sdk.min.js"></script>
+</head>
+<body>
+    <h1>DropBox File Management</h1>
+    <h3>File Upload</h3>
+    <input type="file" id="file-Input">
+    <button id="Upload-btn">Upload file</button>
+    <h3>File Download</h3>
+    <input type="text" id="file-Download">
+    <button id="Download-btn">Download file</button>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dbx = new Dropbox.Dropbox({ accessToken: '' });
+            // Upload file
+            document.getElementById('Upload-btn').addEventListener('click', async () => {
+                const file = document.getElementById('file-Input').files[0];
+                if (file) {
+                    try {
+                        const response = await dbx.filesUpload({ path: '/Booklend/' + file.name, contents: file });
+                        alert('File uploaded successfully!');
+                    } catch (error) {
+                        alert('Error uploading file: ' + (error.error ? JSON.stringify(error.error) : error.message));
+                    }d
+                }
+            });
+            // Download file
+            document.getElementById('Download-btn').addEventListener('click', async () => {
+                const filename = document.getElementById('file-Download').value;
+                if (!filename) {
+                    alert('Error: No file name provided for download.');
+                    return;
+                }
+                const fpath = '/Booklend/' + filename;  // Use the correct filename
+                try {
+                    const resp = await dbx.filesDownload({ path: fpath });
+                    const blob = resp.result.fileBlob;
+                    const downloadUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = downloadUrl;
+                    a.download = filename;  // Ensure the right variable is used here
+                    a.click();
+                    URL.revokeObjectURL(downloadUrl);  // Clean up URL
+                } catch (error) {
+                    alert('Error downloading file: ' + (error.error ? JSON.stringify(error.error) : error.message));
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
+double click the angular file
+
+Note app key
+http://localhost:3000
+localhost
+read and write-enable
+gen access token
+
+{react}
+npm install react-dropbox-chooser
+modify App.js(import) User.js(Crud logic,upload and download)
+npm start
+
+
+
+HADOOP:
+
+sudo apt update
+sudo apt install ssh
+wget https://dlcdn.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz
+ls
+tar -xzf hadoop-3.3.6.tar.gz.3
+ls
+mv hadoop-3.3.6 hadoop
+sudo apt install openjdk-11-jdk
+java -version
+
+cloud@tce-VirtualBox:~$ cd hadoop
+cloud@tce-VirtualBox:~/hadoop$ mkdir data
+cloud@tce-VirtualBox:~/hadoop$ cd data
+cloud@tce-VirtualBox:~/hadoop/data$ mkdir datanode
+cloud@tce-VirtualBox:~/hadoop/data$ mkdir namenode
+cloud@tce-VirtualBox:~/hadoop/data$ ls
+datanode  namenode
+cloud@tce-VirtualBox:~/hadoop/data$ 
+
+
+cloud@tce-VirtualBox:~$ gedit ~/.bashrc
+
+
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+export HADOOP_HOME=/home/cloud/hadoop
+export HADOOP_INSTALL=$HADOOP_HOME
+export HADOOP_MAPRED_HOME=$HADOOP_HOME
+export HADOOP_COMMON_HOME=$HADOOP_HOME
+export HADOOP_HDFS_HOME=$HADOOP_HOME
+export HADOOP_YARN_HOME=$HADOOP_HOME
+export HADOOP_COMMON_LIB_NATIVE=$HADOOP_HOME/lib/native
+export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib/native"
+
+cloud@tce-VirtualBox:~$ source ~/.bashrc
+
+
+cloud@tce-VirtualBox:~/hadoop/etc/hadoop$ gedit hadoop-env.sh
+
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+
+cloud@tce-VirtualBox:~/hadoop/etc/hadoop$ gedit core-site.xml
+
+
+<configuration>
+<property>
+<name>fs.defaultFS</name>
+<value>hdfs://localhost:9000</value>
+</property>
+</configuration>
+
+
+cloud@tce-VirtualBox:~/hadoop/etc/hadoop$ gedit hdfs-site.xml
+
+
+<configuration>
+<property>
+<name>dfs.replication</name>
+<value>3</value>
+</property>
+<property>
+<name>dfs.name.dir</name>
+<value>/home/cloud/hadoop/data/namenode</value>
+</property>
+<property>
+<name>dfs.data.dir</name>
+<value>/home/cloud/hadoop/data/datanode</value>
+</property>
+</configuration>
+
+
+cloud@tce-VirtualBox:~/hadoop/etc/hadoop$ gedit yarn-site.xml
+
+
+<configuration>
+<property>
+  <name>yarn.nodemanager.aux-services</name>
+  <value>mapreduce_shuffle</value>
+</property><property>
+  <name>yarn.nodemanager.auxservices.mapreduce.shuffle.class</name>
+  <value>org.apache.hadoop.mapred.ShuffleHandler</value>
+</property>
+<property>
+  <name>yarn.resourcemanager.hostname</name>
+  <value>localhost</value>
+</property>
+</configuration>
+
+
+
+cloud@tce-VirtualBox:~/hadoop/etc/hadoop$ gedit mapred-site.xml
+
+<configuration>
+<property>
+  <name>mapreduce.framework.name</name>
+  <value>yarn</value>
+</property>
+<property>
+  <name>yarn.app.mapreduce.am.env</name>
+  <value>HADOOP_MAPRED_HOME=$HADOOP_HOME</value>
+</property>
+<property>
+  <name>mapreduce.map.env</name>
+  <value>HADOOP_MAPRED_HOME=$HADOOP_HOME</value>
+</property>
+<property>
+  <name>mapreduce.reduce.env</name>
+  <value>HADOOP_MAPRED_HOME=$HADOOP_HOME</value>
+</property>
+</configuration>
+
+ssh-keygen -t rsa
+
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+
+chmod 640 ~/.ssh/authorized_keys
+
+hdfs namenode -format
+
+start-dfs.sh
+start-yarn.sh
+jps
+
+hdfs dfs -mkdir -p user/hadoop/input
+hdfs dfs  -put /home/cloud/f.txt user/hadoop/input
+hdfs dfs -ls user/hadoop/input
+
+hadoop jar ~/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-*.jar wordcount user/hadoop/input user/hadoop/output
+
+hdfs dfs -ls user/hadoop/output
+
+hdfs dfs -cat  user/hadoop/output/part-r-00000
+
+
+
+
+
+Hadoop Installation:https://phoenixnap.com/kb/install-hadoop-ubuntu
+
+wordcount:https://hadoop.apache.org/docs/stable/hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapReduceTutorial.html
+
+import java.io.IOException;
+import java.util.StringTokenizer;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+public class WordCount {
+
+  public static class TokenizerMapper
+       extends Mapper<Object, Text, Text, IntWritable>{
+
+    private final static IntWritable one = new IntWritable(1);
+    private Text word = new Text();
+
+    public void map(Object key, Text value, Context context
+                    ) throws IOException, InterruptedException {
+      StringTokenizer itr = new StringTokenizer(value.toString());
+      while (itr.hasMoreTokens()) {
+        word.set(itr.nextToken());
+        context.write(word, one);
+      }
+    }
+  }
+
+  public static class IntSumReducer
+       extends Reducer<Text,IntWritable,Text,IntWritable> {
+    private IntWritable result = new IntWritable();
+
+    public void reduce(Text key, Iterable<IntWritable> values,
+                       Context context
+                       ) throws IOException, InterruptedException {
+      int sum = 0;
+      for (IntWritable val : values) {
+        sum += val.get();
+      }
+      result.set(sum);
+      context.write(key, result);
+    }
+  }
+
+  public static void main(String[] args) throws Exception {
+    Configuration conf = new Configuration();
+    Job job = Job.getInstance(conf, "word count");
+    job.setJarByClass(WordCount.class);
+    job.setMapperClass(TokenizerMapper.class);
+    job.setCombinerClass(IntSumReducer.class);
+    job.setReducerClass(IntSumReducer.class);
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(IntWritable.class);
+    FileInputFormat.addInputPath(job, new Path(args[0]));
+    FileOutputFormat.setOutputPath(job, new Path(args[1]));
+    System.exit(job.waitForCompletion(true) ? 0 : 1);
+  }
+}
+
+
+
+### **1. Save the Program**
+1. **Choose a Directory:**
+   - Decide on a directory to save your Java file. For example, use `/home/user/WordCount/`.
+
+2. **Save the File:**
+   - Save the program as `WordCount.java` in the chosen directory. Ensure the filename matches the class name `WordCount`.
+
+   mkdir -p /home/user/WordCount/
+   nano /home/user/WordCount/WordCount.java
+
+   Paste the code into the file and save it (`Ctrl + O` to write, `Ctrl + X` to exit in `nano`).
+
+
+### **2. Compile the Program**
+
+1. **Navigate to the Directory:**
+   ```bash
+   cd /home/user/WordCount/
+   ```
+
+2. **Compile the Program:**
+   Use the Hadoop `javac` command to compile:
+   ```bash
+   hadoop com.sun.tools.javac.Main WordCount.java
+   ```
+   This will generate `.class` files for your program.
+
+3. **Package the Program into a JAR File:**
+   Create a JAR file `wc.jar` containing the compiled classes:
+   ```bash
+   jar cf wc.jar WordCount*.class
+   ```
+
+---
+
+### **3. Prepare Input Data in HDFS**
+1. **Create an Input Directory in HDFS:**
+   ```bash
+   hdfs dfs -mkdir -p /user/your_username/wordcount/input
+   ```
+   output directory 
+   hdfs dfs -mkdir -p /user/your_username/wordcount/output
+
+2. **Upload Input Files:**
+   Add sample text files to HDFS:
+   ```bash
+   hdfs dfs -put /path/to/local/file01 /user/your_username/wordcount/input/
+   hdfs dfs -put /path/to/local/file02 /user/your_username/wordcount/input/
+   ```
+
+3. **Verify Input Files:**
+   Ensure the files are uploaded:
+   ```bash
+   hdfs dfs -ls /user/your_username/wordcount/input/
+   ```
+
+---
+
+### **4. Run the WordCount Program**
+1. **Run the JAR File:**
+   Execute the MapReduce job using the Hadoop command:
+   ```bash
+   hadoop jar wc.jar WordCount /user/your_username/wordcount/input /user/your_username/wordcount/output
+   ```
+   - `/user/your_username/wordcount/input` is the input directory in HDFS.
+   - `/user/your_username/wordcount/output` is the output directory in HDFS.
+
+2. **Ensure No Output Directory Exists:**(Optional)
+   If the `/user/your_username/wordcount/output` directory exists, Hadoop will throw an error. Remove it:
+   ```bash
+   hdfs dfs -rm -r /user/your_username/wordcount/output
+   ```
+
+---
+
+### **5. View the Results**
+1. **Check the Output in HDFS:**
+   List the files in the output directory:
+   ```bash
+   hdfs dfs -ls /user/your_username/wordcount/output/
+   ```
+
+2. **Display the Results:**
+   View the content of the result file:
+   ```bash
+   hdfs dfs -cat /user/your_username/wordcount/output/part-r-00000
+   ```
+   The output will show word counts in the format:
+   ```
+   Bye       1
+   Goodbye   1
+   Hadoop    2
+   Hello     2
+   World     2
+   ```
+
+---
+
+### **6. Debugging Tips**
+- **Compilation Issues:**
+  - Ensure `tools.jar` is in your `$HADOOP_CLASSPATH`.
+  - Check for Java syntax errors in `WordCount.java`.
+
+- **HDFS Errors:**
+  - Ensure Hadoop services (`namenode`, `datanode`, etc.) are running.
+  - Verify HDFS paths exist with `hdfs dfs -ls`.
+
+- **Job Failures:**
+  - Review the logs of the MapReduce job:
+    ```bash
+    yarn logs -applicationId <application_id>
+    ```
+
+---
+
+By following these steps, you can save, compile, and successfully run the `WordCount` MapReduce program on your Hadoop cluster.
+
+
+
+SPARK:
+
+sudo apt update
+sudo apt install default-jdk
+sudo apt install scala
+sudo su
+mkdir /opt/spark
+cd /opt/spark
+wget https://dlcdn.apache.org/spark/spark-3.5.3/spark-3.5.3-bin-hadoop3.tgz
+tar xvf spark-3.5.3-bin-hadoop3.tgz
+cd
+ll
+nano .bashrc
+SPARK_HOME=/opt/spark/spark-3.5.3-bin-hadoop3
+export PATH=$PATH:$SPARK_HOME/bin:$SPARK_HOME/bin
+source .bashrc
+spark-shell
+CODE:
+
+val inputfile = sc.textFile("/opt/spark/file.txt")
+val counts=inputfile.flatMap(line => line.split(" ")).map(word => (word,1)).reduceByKey(+)
+counts.saveAsTextFile("output")
+
+cd output
+ls
+cat part-00000
+
+
+(IF ERROR)
+nano you_input_file.txt
+cp your_input_file.txt /opt/spark/input.txt
+ls -l /opt/spark/input.txt
+
+
+
+
+DOCKER APPLICATION:
+
+sudo apt update
+sudo apt upgrade
+sudo apt install docker.io
+sudo systemctl start docker
+sudo systemctl enable docker
+mkdir docker_ab
+cd docker_ab
+nano sum.py
+
+n=int(input("Enter n: "))
+result=sum(range(1,n+1))
+print(f"Sum of 1 to {n}: {result}")
+
+nano Dockerfile 	#file name must be "Dockerfile"
+
+from python:3.9
+copy sum.py /sum.py
+cmd ["python3", "/sum.py"]
+
+sudo docker build -t sum_image .
+sudo docker run -it sum_image
+
+
+DOCKER NORAML IMAGE:
+
+docker
+
+sudo apt-get update
+sudo apt install docker.io
+sudo systemctl enable docker
+sudo systemctl status docker     (-->active if not active use sudo systemctl start docker to get active)
+nano Dockerfile
+(FROM ubuntu:latest
+ RUN apt-get update
+ CMD ["echo","helloo all"])
+sudo docker build -t sampleimg .
+sudo docker images
+sudo docker run sampleimg
+sudo docker login
+(username : karthigaravi
+ pass: karthi200529)
+sudo docker tag sampleimg:latest kerthigaravi/samp
+sudo docker push karthigaravi/samp:latest
+sudo docker images
+sudo docker pull karthigaravi/samp:latest
+sudo docker run karthigaravi/samp:latest (Same op as sudo docker run sampleimg this cmd)
+sudo docker rmi sampleimg:latest(delete image)
+sudo docker ps -a
+sudo docker rm container_id(Removes the container)
+
+srimathirengharajan
+srimathi123
+
+
+OPENMP:
+
+OpenMP
+
+
+sudo apt update
+sudo apt install openmpi-bin openmpi-common libopenmpi-dev
+
+
+sudo apt update
+sudo apt install build-essential
+
+gcc --version
+
+gcc -fopenmp openmp_hello.c -o openmp_hello
+./openmp_hello
+
+
+
+
+hello 
+
+#include <stdio.h>
+#include <omp.h>
+
+int main() {
+    #pragma omp parallel
+    {
+        int thread_id = omp_get_thread_num();
+        int num_threads = omp_get_num_threads();
+        printf("Hello from thread %d of %d\n", thread_id, num_threads);
+    }
+    return 0;
+}
+
+
+sum of elements in array
+
+#include <stdio.h>
+#include <omp.h>
+
+int main() {
+    int n = 100;
+    int arr[n];
+    int sum = 0;
+
+    // Initialize the array
+    for (int i = 0; i < n; i++) {
+        arr[i] = i + 1;  // Fill with values from 1 to 100
+    }
+
+    // Parallelize the for loop using OpenMP
+    #pragma omp parallel for reduction(+:sum)
+    for (int i = 0; i < n; i++) {
+        sum += arr[i];
+    }
+
+    printf("The total sum is %d\n", sum);
+    return 0;
+}
+
+
+matrix multiplication
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <omp.h>
+
+#define N 3  // Matrix dimension
+
+void multiply_matrices(int A[N][N], int B[N][N], int C[N][N]) {
+    #pragma omp parallel for
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            C[i][j] = 0;
+            for (int k = 0; k < N; k++) {
+                C[i][j] += A[i][k] * B[k][j];
+            }
+        }
+    }
+}
+
+int main() {
+    int A[N][N] = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+    int B[N][N] = {{9, 8, 7}, {6, 5, 4}, {3, 2, 1}};
+    int C[N][N];
+
+    multiply_matrices(A, B, C);
+
+    // Print the result
+    printf("Matrix A x Matrix B = Matrix C\n");
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            printf("%d ", C[i][j]);
+        }
+        printf("\n");
+    }
+
+    return 0;
+}
+
+
+greatest number
+#include <stdio.h>
+#include <omp.h>
+
+int main() {
+    int n;
+
+    // Input the size of the array
+    printf("Enter the number of elements in the array: ");
+    scanf("%d", &n);
+
+    int arr[n];
+
+    // Input the elements of the array
+    printf("Enter the elements of the array:\n");
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &arr[i]);
+    }
+
+    int greatest = arr[0];  // Initialize the greatest to the first element
+
+    // Parallel block using OpenMP
+    #pragma omp parallel for reduction(max:greatest)
+    for (int i = 1; i < n; i++) {
+        if (arr[i] > greatest) {
+            greatest = arr[i];  // Update greatest if a larger number is found
+        }
+    }
+
+    // Print the greatest number
+    printf("The greatest number in the array is: %d\n", greatest);
+
+    return 0;
+}
+
+
+
+Fibonacci series
+
+#include <stdio.h>
+#include <omp.h>
+
+void fibonacci(int n) {
+    long long fib[n];
+
+    // Parallelize the Fibonacci computation
+    #pragma omp parallel for
+    for (int i = 0; i < n; i++) {
+        if (i == 0) {
+            fib[i] = 0;
+        } else if (i == 1) {
+            fib[i] = 1;
+        } else {
+            fib[i] = fib[i - 1] + fib[i - 2];
+        }
+    }
+
+    // Print the Fibonacci sequence
+    printf("Fibonacci Sequence up to %d terms:\n", n);
+    for (int i = 0; i < n; i++) {
+        printf("%lld ", fib[i]);
+    }
+    printf("\n");
+}
+
+int main() {
+    int n;
+
+    printf("Enter the number of terms for Fibonacci sequence: ");
+    scanf("%d", &n);
+
+    // Call the Fibonacci function
+    fibonacci(n);
+
+    return 0;
+}
+
+
+
+Armstrong
+
+#include <stdio.h>
+#include <math.h>
+#include <omp.h>
+
+// Function to check if a number is an Armstrong number
+int is_armstrong(int num) {
+    int sum = 0, temp = num, digits = 0;
+
+    // Count the number of digits
+    while (temp != 0) {
+        digits++;
+        temp /= 10;
+    }
+
+    temp = num;
+
+    // Calculate the sum of digits raised to the power of the number of digits
+    while (temp != 0) {
+        int digit = temp % 10;
+        sum += pow(digit, digits);
+        temp /= 10;
+    }
+
+    return (sum == num);
+}
+
+void armstrong(int n) {
+    // Parallelize the Armstrong number check
+    #pragma omp parallel for
+    for (int i = 1; i <= n; i++) {
+        if (is_armstrong(i)) {
+            printf("%d is an Armstrong number.\n", i);
+        }
+    }
+}
+
+int main() {
+    int n;
+
+    printf("Enter the upper limit to check Armstrong numbers: ");
+    scanf("%d", &n);
+
+    // Call the Armstrong function
+    armstrong(n);
+
+    return 0;
+}
+
+
+
+
+
+
+MPI:
+
+sudo apt update
+sudo apt install mpich
+
+
+mpicc --version
+mpirun --version
+
+mpicc mpi_hello.c -o mpi_hello
+mpirun -np 4 ./mpi_hello
+
+
+hello world
+
+#include <stdio.h>
+#include <mpi.h>
+
+int main(int argc, char* argv[]) {
+    MPI_Init(&argc, &argv);  // Initialize MPI
+    
+    int world_rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);  // Get the rank of the process
+
+    int world_size;
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);  // Get the number of processes
+
+    printf("Hello from process %d of %d\n", world_rank, world_size);
+
+    MPI_Finalize();  // Finalize MPI
+    return 0;
+}
+
+
+
+parallel reduction-sum of numbers
+
+
+#include <stdio.h>
+#include <mpi.h>
+
+int main(int argc, char* argv[]) {
+    MPI_Init(&argc, &argv);  // Initialize MPI environment
+
+    int world_rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);  // Get the rank of this process
+    
+    int world_size;
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);  // Get the total number of processes
+    
+    int local_sum = world_rank + 1;  // Each process adds its rank + 1
+    int global_sum = 0;
+
+    // Perform the reduction (sum of all local sums)
+    MPI_Reduce(&local_sum, &global_sum, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+    
+    if (world_rank == 0) {
+        printf("The total sum is %d\n", global_sum);
+    }
+
+    MPI_Finalize();  // Finalize MPI environment
+    return 0;
+}
+
+
+
+sender-receiver
+
+#include <stdio.h>
+#include <mpi.h>
+
+// Sender function
+void sender() {
+    int data = 100;  // Data to send
+    int TAG = 0;  // Message tag to identify the message
+
+    // Sending the data to process 1 (receiver)
+    MPI_Send(&data, 1, MPI_INT, 1, TAG, MPI_COMM_WORLD);
+    printf("Sender (Process 0) sent data: %d\n", data);
+}
+
+// Receiver function
+void receiver() {
+    int received_data;
+    int TAG = 0;  // Message tag to identify the message
+
+    // Receiving the data from process 0 (sender)
+    MPI_Recv(&received_data, 1, MPI_INT, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    printf("Receiver (Process 1) received data: %d\n", received_data);
+}
+
+int main(int argc, char* argv[]) {
+    MPI_Init(&argc, &argv);  // Initialize MPI environment
+
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);  // Get the rank of the current process
+
+    if (rank == 0) {
+        sender();  // Call sender function if process 0
+    } else if (rank == 1) {
+        receiver();  // Call receiver function if process 1
+    }
+
+    MPI_Finalize();  // Finalize MPI environment
+    return 0;
+}
+
+
+
+greatest number
+
+#include <stdio.h>
+#include <mpi.h>
+
+int main(int argc, char* argv[]) {
+    int rank, size, n;
+    int local_max, global_max;
+
+    MPI_Init(&argc, &argv);  // Initialize MPI environment
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);  // Get the rank of the current process
+    MPI_Comm_size(MPI_COMM_WORLD, &size);  // Get the total number of processes
+
+    // Root process (rank 0) asks for array size and inputs array elements
+    if (rank == 0) {
+        printf("Enter the number of elements in the array: ");
+        scanf("%d", &n);
+    }
+
+    // Broadcast the size of the array to all processes
+    MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
+
+    int arr[n];
+
+    // Root process inputs the array elements
+    if (rank == 0) {
+        printf("Enter the elements of the array:\n");
+        for (int i = 0; i < n; i++) {
+            scanf("%d", &arr[i]);
+        }
+    }
+
+    // Broadcast the array to all processes
+    MPI_Bcast(arr, n, MPI_INT, 0, MPI_COMM_WORLD);
+
+    // Each process finds the maximum value in its portion of the array
+    int chunk_size = n / size;  // Calculate chunk size for each process
+    int start_index = rank * chunk_size;
+    int end_index = (rank == size - 1) ? n : (rank + 1) * chunk_size;  // Handle last chunk
+
+    // Find the local maximum in the assigned chunk
+    local_max = arr[start_index];
+    for (int i = start_index + 1; i < end_index; i++) {
+        if (arr[i] > local_max) {
+            local_max = arr[i];
+        }
+    }
+
+    // Use MPI_Reduce to find the global maximum from all processes
+    MPI_Reduce(&local_max, &global_max, 1, MPI_INT, MPI_MAX, 0, MPI_COMM_WORLD);
+
+    // Root process prints the greatest number
+    if (rank == 0) {
+        printf("The greatest number in the array is: %d\n", global_max);
+    }
+
+    MPI_Finalize();  // Finalize MPI environment
+    return 0;
+}
+
+
+
+
+
